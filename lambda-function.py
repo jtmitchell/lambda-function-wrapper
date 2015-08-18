@@ -4,7 +4,9 @@ import json
 
 
 def main(event):
-    print('Called with event {0}'.format(event))
+    name = event.get('name', 'Mr. Eastwood')
+    response = dict(greeting='Hello', name=name)
+    print(json.dumps(response))
 
 
 if __name__=='__main__':

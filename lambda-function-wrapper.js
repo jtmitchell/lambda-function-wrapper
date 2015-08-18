@@ -14,9 +14,19 @@
 
 var spawn = require('child_process').spawn;
 exports.handler = function(event, context) {
-//  var child = spawn('venv/bin/python3.4 lambda-function.py', [JSON.stringify(event, null, 2)]);
+  var response = {};
+  var error = null;
   var child = spawn('venv/bin/python', ['lambda-function.py', JSON.stringify(event, null, 2)]);
-  child.stdout.on('data', function (data) { console.log("stdout:\n"+data); });
-  child.stderr.on('data', function (data) { console.log("stderr:\n"+data); });
-  child.on('close', function (code) { context.done(); });
+  child.stdout.on('data', function (data) {
+    console.log("stdout:\n"+data);
+    response = JSON.parse(data);
+  });
+  child.stderr.on('data', function (data) {
+    console.log("stderr:\n"+data);
+    error = { error: true, message: data.toString('utf8') };
+  });
+  child.on('close', function (code) {
+    if (error !== null ) { context.fail(error); }
+    else {context.succeed(response); }
+  });
 };
